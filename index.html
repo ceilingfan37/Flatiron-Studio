@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flatiron Studio — Local Web Design Studio</title>
+    <!-- Favicon -->
+  <link rel="icon" href="favicon.ico" sizes="any"><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sandstone: #C9A87C;
+      --sandstone-light: #DFC3A0;
+      --sandstone-pale: #F2E8D9;
+      --black: #181714;
+      --evergreen: #2B4A3C;
+      --brown: #7A4A28;
+      --white: #FDFAF5;
+      --muted: #6a6660;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--sandstone-pale); color: var(--black); overflow-x: hidden; }
+
+    /* Fix section headings getting hidden behind fixed nav on anchor jump */
+    section { scroll-margin-top: 92px; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%; height: 68px;
+      background: rgba(242,232,217,0.95);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(201,168,124,0.35);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--evergreen);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--black); font-size: 0.88rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--brown); }
+    .nav-cta {
+      background: var(--evergreen) !important;
+      color: var(--white) !important;
+      padding: 0.5rem 1.3rem !important;
+      border-radius: 4px;
+      font-weight: 500 !important;
+      white-space: nowrap;
+    }
+    .nav-cta:hover { background: var(--brown) !important; }
+
+    /* Hamburger */
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; z-index: 210; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--black); border-radius: 2px; transition: transform 0.3s, opacity 0.3s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile drawer */
+    .mobile-menu {
+      display: none;
+      position: fixed; top: 68px; left: 0; right: 0; z-index: 199;
+      background: rgba(242,232,217,0.98);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(201,168,124,0.35);
+      padding: 1.5rem 5% 2rem;
+      flex-direction: column; gap: 0;
+      transform: translateY(-10px);
+      opacity: 0;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      pointer-events: none;
+    }
+    .mobile-menu.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .mobile-menu a { font-size: 1.1rem; font-weight: 400; color: var(--black); text-decoration: none; padding: 0.9rem 0; border-bottom: 1px solid rgba(201,168,124,0.2); display: block; transition: color 0.2s; }
+    .mobile-menu a:hover { color: var(--brown); }
+    .mobile-menu a:last-child { border-bottom: none; margin-top: 0.75rem; background: var(--evergreen); color: var(--white); text-align: center; padding: 0.85rem; border-radius: 6px; font-weight: 500; }
+    .mobile-menu a:last-child:hover { background: var(--brown); }
+
+    /* HERO */
+    #home {
+      position: relative; height: 100vh; min-height: 620px;
+      display: flex; align-items: flex-end; overflow: hidden;
+    }
+    .hero-bg { position: absolute; inset: 0; background: url('hero-bg.jpg') center center / cover no-repeat; }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(24,23,20,0.88) 0%, rgba(24,23,20,0.48) 42%, rgba(24,23,20,0.05) 100%);
+    }
+    .hero-content { position: relative; z-index: 2; padding: 0 6% 8%; }
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 6.5vw, 5.8rem);
+      font-weight: 700; line-height: 1.05; color: var(--white);
+      margin-bottom: 2.5rem; max-width: 800px;
+      animation: heroUp 0.9s ease 0.25s both;
+    }
+    .hero-title em { font-style: italic; color: var(--sandstone); }
+    .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; animation: heroUp 0.9s ease 0.5s both; }
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--brown); color: var(--white);
+      padding: 0.9rem 2.2rem; border-radius: 4px;
+      text-decoration: none; font-weight: 500; font-size: 0.95rem;
+      transition: background 0.2s, transform 0.15s; text-align: center;
+    }
+    .btn-primary:hover { background: var(--evergreen); transform: translateY(-2px); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: transparent; color: var(--white);
+      padding: 0.9rem 2.2rem; border-radius: 4px;
+      text-decoration: none; font-weight: 400; font-size: 0.95rem;
+      border: 1.5px solid rgba(255,255,255,0.38);
+      transition: border-color 0.2s, background 0.2s; text-align: center;
+    }
+    .btn-ghost:hover { border-color: var(--sandstone); background: rgba(255,255,255,0.07); }
+    @keyframes heroUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    
+    
+    
+    
+    
+    
+    
+    /* Scroll-triggered fade-up animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up, .fade-up-1, .fade-up-2, .fade-up-3 {
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .js-ready .fade-up, .js-ready .fade-up-1, .js-ready .fade-up-2, .js-ready .fade-up-3 {
+      opacity: 0; transform: translateY(28px);
+    }
+    .js-ready .fade-up-1 { transition-delay: 0.1s; }
+    .js-ready .fade-up-2 { transition-delay: 0.2s; }
+    .js-ready .fade-up-3 { transition-delay: 0.3s; }
+    .fade-up.in-view, .fade-up-1.in-view, .fade-up-2.in-view, .fade-up-3.in-view {
+      opacity: 1 !important; transform: translateY(0) !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .fade-up, .fade-up-1, .fade-up-2, .fade-up-3 { opacity: 1 !important; transform: none !important; transition: none !important; }
+      .hero-title, .hero-buttons { animation: none !important; }
+    }
+
+    /* SHARED */
+    .section-label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--brown);
+      margin-bottom: 0.85rem;
+      display: flex; align-items: center; gap: 0.7rem;
+    }
+    .section-label::before { content: ''; display: block; width: 22px; height: 1px; background: var(--brown); }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 700; line-height: 1.12; color: var(--black);
+      margin-bottom: 1rem;
+    }
+    .section-title span { color: var(--evergreen); }
+    .section-sub { font-size: 1rem; line-height: 1.75; color: var(--muted); font-weight: 300; max-width: 720px; }
+
+    /* SERVICES */
+    #services { padding: 110px 5%; background: var(--white); }
+    .services-top { margin-bottom: 3rem; }
+    .services-header { max-width: 480px; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: stretch; }
+    .pricing-card {
+      border-radius: 12px; padding: 2.25rem 1.9rem;
+      display: flex; flex-direction: column; position: relative;
+      border: 1.5px solid var(--sandstone-light);
+      background: var(--sandstone-pale);
+      transition: transform 0.25s cubic-bezier(.22,.68,0,1.2), box-shadow 0.25s;
+    }
+    .pricing-card:hover { transform: translateY(-6px); box-shadow: 0 18px 45px rgba(0,0,0,0.09); }
+    .pricing-card.featured { background: var(--evergreen); border-color: var(--evergreen); box-shadow: 0 24px 60px rgba(43,74,60,0.28); }
+    .pricing-card.featured:hover { transform: translateY(-6px); }
+    .featured-badge {
+      position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+      background: var(--brown); color: var(--white);
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; padding: 0.26rem 0.9rem;
+      border-radius: 999px; white-space: nowrap;
+    }
+    .card-tier { font-size: 0.62rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--brown); margin-bottom: 0.3rem; }
+    .pricing-card.featured .card-tier { color: var(--sandstone); }
+    .card-name { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--black); }
+    .pricing-card.featured .card-name { color: var(--white); }
+    .card-price-row { display: flex; align-items: baseline; gap: 0.4rem; margin: 1rem 0 0.2rem; }
+    .card-price { font-family: 'Playfair Display', serif; font-size: 2.3rem; font-weight: 700; color: var(--brown); line-height: 1; }
+    .pricing-card.featured .card-price { color: var(--sandstone); }
+    .card-price-label { font-size: 0.76rem; color: var(--muted); font-weight: 300; }
+    .pricing-card.featured .card-price-label { color: rgba(255,255,255,0.4); }
+    .card-timeline { font-size: 0.74rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .pricing-card.featured .card-timeline { color: rgba(255,255,255,0.45); }
+    .card-divider { height: 1px; background: rgba(201,168,124,0.35); margin-bottom: 1.4rem; }
+    .card-features { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; flex: 1; margin-bottom: 0; }
+    .pricing-card.featured .card-divider { background: rgba(255,255,255,0.12); }
+    .card-features li { font-size: 0.86rem; display: flex; align-items: flex-start; gap: 0.6rem; color: #3e3c36; line-height: 1.4; }
+    .pricing-card.featured .card-features li { color: rgba(255,255,255,0.85); }
+    .check { width: 15px; height: 15px; background: var(--evergreen); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; font-size: 0.52rem; color: var(--white); font-weight: 800; }
+    .pricing-card.featured .check { background: var(--sandstone); color: var(--evergreen); }
+    .card-bottom { padding-top: 1.5rem; }
+    .card-cta {
+      display: flex; align-items: center; justify-content: center;
+      padding: 0.72rem 1.4rem; border-radius: 6px; font-size: 0.87rem; font-weight: 500;
+      text-decoration: none; transition: background 0.2s, transform 0.15s;
+      background: transparent; color: var(--evergreen);
+      border: 1.5px solid rgba(43,74,60,0.35);
+      margin-bottom: 1.1rem; width: 100%;
+    }
+    .card-cta:hover { background: var(--evergreen); color: var(--white); border-color: var(--evergreen); }
+    .pricing-card.featured .card-cta { background: var(--sandstone); color: var(--evergreen); border-color: var(--sandstone); font-weight: 600; }
+    .pricing-card.featured .card-cta:hover { background: var(--sandstone-light); }
+    .card-note { font-size: 0.73rem; color: var(--muted); line-height: 1.6; min-height: 2.4em; }
+    .pricing-card.featured .card-note { color: rgba(255,255,255,0.38); }
+    .card-hosting { font-size: 0.7rem; color: var(--muted); line-height: 1.5; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed rgba(201,168,124,0.4); }
+    .pricing-card.featured .card-hosting { color: rgba(255,255,255,0.32); border-top-color: rgba(255,255,255,0.1); }
+
+    /* ABOUT */
+    #about { padding: 90px 5% 110px; background: var(--sandstone-pale); }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: stretch; }
+    .about-tagline { font-size: 0.9rem; color: var(--muted); line-height: 1.7; font-weight: 300; font-style: italic; margin: 0.5rem 0 1.75rem; }
+    .values-list { display: flex; flex-direction: column; gap: 1rem; }
+    .value-item { padding: 0.85rem 1.1rem; background: var(--white); border-radius: 6px; border-left: 3px solid var(--sandstone); transition: border-color 0.2s, transform 0.2s; }
+    .value-item:hover { border-left-color: var(--evergreen); transform: translateX(4px); }
+    .value-item h4 { font-size: 0.88rem; font-weight: 600; color: var(--black); margin-bottom: 0.15rem; }
+    .value-item p { font-size: 0.81rem; color: var(--muted); line-height: 1.55; font-weight: 300; }
+    .about-photo { border-radius: 12px; overflow: hidden; position: relative; }
+    .about-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block; }
+
+    /* PROCESS */
+    #process { padding: 110px 5%; background: var(--evergreen); position: relative; overflow: hidden; }
+    #process::before { content: ''; position: absolute; inset: 0; background-image: url('about-local.jpg'); background-size: cover; background-position: center 40%; opacity: 0.15; pointer-events: none; }
+    #process > * { position: relative; z-index: 1; }
+    #process .section-label { color: var(--sandstone); }
+    #process .section-label::before { background: var(--sandstone); }
+    #process .section-title { color: var(--white); }
+    .process-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-top: 4rem; }
+    .step-number { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700; color: var(--sandstone); line-height: 1; margin-bottom: 0.6rem; }
+    .step h4 { font-size: 0.93rem; font-weight: 600; color: rgba(255,255,255,0.62); margin-bottom: 0.55rem; }
+    .step p { font-size: 0.84rem; color: rgba(255,255,255,0.62); line-height: 1.65; font-weight: 300; }
+
+    /* CONTACT */
+    #contact { padding: 110px 5% 110px; background: var(--sandstone-pale); }
+    .contact-outer { display: grid; grid-template-columns: 1fr 1.6fr; border-radius: 16px; overflow: hidden; align-items: stretch; border: 2px solid var(--evergreen); }
+    .contact-sidebar {
+      background: var(--evergreen);
+      padding: 4rem 3rem 3rem;
+      display: flex; flex-direction: column; gap: 1.5rem;
+    }
+    .contact-sidebar .section-label { color: var(--sandstone); }
+    .contact-sidebar .section-label::before { background: var(--sandstone); }
+    .contact-sidebar .section-title { color: var(--white); font-size: clamp(1.6rem, 2.5vw, 2.2rem); }
+    .contact-sidebar-intro { font-size: 0.9rem; line-height: 1.85; color: rgba(255,255,255,0.6); font-weight: 300; margin-top: -1rem; }
+    .contact-details { display: flex; flex-direction: column; gap: 0; }
+    .contact-detail-row { display: flex; gap: 0.85rem; align-items: flex-start; padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .contact-detail-row:first-child { padding-top: 0; }
+    .contact-detail-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .contact-detail-icon { font-size: 1rem; margin-top: 1px; flex-shrink: 0; }
+    .contact-detail-text { display: flex; flex-direction: column; gap: 0.1rem; }
+    .contact-detail-text span { font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--sandstone); }
+    .contact-detail-text a, .contact-detail-text p { font-size: 0.88rem; color: rgba(255,255,255,0.75); text-decoration: none; }
+    .contact-detail-text a:hover { color: var(--sandstone-light); }
+    .contact-promise { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; margin-top: auto; }
+    .sidebar-photo { height: 150px; border-radius: 8px; overflow: hidden; flex-shrink: 0; margin-top: auto; }
+    .sidebar-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; display: block; opacity: 0.65; }
+    .contact-promise p { font-size: 0.82rem; color: rgba(255,255,255,0.5); line-height: 1.75; font-weight: 300; }
+    .contact-promise strong { color: var(--sandstone-light); font-weight: 500; }
+    .contact-form-side {
+      padding: 4rem 4rem 4rem;
+      background: var(--sandstone-pale);
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .contact-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.35rem 1.5rem; }
+    .contact-form .full { grid-column: 1 / -1; }
+    .contact-form .btn-submit { grid-column: 1 / -1; margin-bottom: 0.5rem; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label { font-size: 0.77rem; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 0.72rem 1rem;
+      border: 1.5px solid var(--sandstone-light);
+      border-radius: 4px;
+      background: var(--sandstone-pale);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--black);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--evergreen); background: var(--white); }
+    .form-group textarea { resize: vertical; min-height: 132px; }
+    .btn-submit {
+      width: 100%;
+      padding: 0.95rem;
+      background: var(--evergreen);
+      color: var(--white);
+      border: none;
+      border-radius: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-submit:hover { background: var(--brown); transform: translateY(-1px); }
+
+    /* FOOTER */
+    footer { background: var(--evergreen); padding: 4rem 5% 2rem; color: rgba(255,255,255,0.78); }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1.2fr;
+      gap: 5rem;
+      padding-bottom: 3rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .footer-nav-cols { display: contents; }
+    .footer-contact-cols { display: flex; flex-direction: column; gap: 0; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--sandstone-light); }
+    .footer-tagline { font-size: 0.8rem; color: rgba(255,255,255,0.45); margin-top: 0.4rem; line-height: 1.6; max-width: 260px; }
+    .footer-col-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--sandstone); margin-bottom: 1rem; }
+    .footer-col-links { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .footer-col-links a { text-decoration: none; color: rgba(255,255,255,0.55); font-size: 0.85rem; transition: color 0.2s; }
+    .footer-col-links a:hover { color: var(--sandstone); }
+    .footer-contact-item { display: flex; flex-direction: column; gap: 0.15rem; margin-bottom: 0.85rem; }
+    .footer-contact-item span { font-size: 0.68rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sandstone); }
+    .footer-contact-item p { font-size: 0.85rem; color: rgba(255,255,255,0.55); }
+    .footer-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 1.75rem; flex-wrap: wrap; gap: 1rem; }
+    .footer-copy { font-size: 0.73rem; color: rgba(255,255,255,0.3); }
+
+    /* BACK TO TOP — mobile only, hidden in hero */
+    .back-to-top {
+      display: none;
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 300;
+      width: 46px;
+      height: 46px;
+      background: var(--evergreen);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+      opacity: 0;
+      pointer-events: none;
+      transition: background 0.2s, transform 0.2s, opacity 0.3s;
+    }
+    .back-to-top.visible { opacity: 1; pointer-events: auto; }
+    .back-to-top:hover { background: var(--brown); transform: translateY(-2px); }
+    .back-to-top svg { display: block; }
+
+    /* MOBILE */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .mobile-menu { display: flex; }
+
+      #services, #about, #process, #contact { text-align: center; }
+      .section-label { justify-content: center; }
+      .section-label::before { display: none; }
+      .section-sub { margin-left: auto; margin-right: auto; }
+      .services-header { margin-left: auto; margin-right: auto; }
+
+      .pricing-grid {
+        display: flex !important; gap: 1rem; overflow-x: auto;
+        -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;
+        padding: 1.2rem 5% 1.5rem; scroll-padding-left: 5%;
+      }
+      .pricing-grid::-webkit-scrollbar { height: 6px; }
+      .pricing-grid::-webkit-scrollbar-thumb { background: rgba(201,168,124,0.55); border-radius: 999px; }
+      .pricing-card { flex: 0 0 86% !important; min-width: 86% !important; scroll-snap-align: center; padding: 1.6rem 1.4rem !important; }
+      .featured-badge { top: -11px; }
+      .card-name { font-size: 1.25rem; } .card-price { font-size: 2rem; }
+      .card-timeline { display: none; }
+      .card-features li { font-size: 0.84rem; text-align: left; }
+      .check { width: 14px; height: 14px; font-size: 0.48rem; }
+      .card-cta { font-size: 0.88rem; padding: 0.72rem 1rem; }
+      .card-note { display: block; font-size: 0.72rem; text-align: left; } .card-hosting { display: block; font-size: 0.68rem; text-align: left; }
+
+      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .about-photo { height: 280px; }
+      .about-photo { height: 260px; }
+      .about-img.tall { grid-row: 1 / 3; }
+
+      .process-steps { grid-template-columns: 1fr 1fr; }
+      .step { text-align: center; }
+
+      .contact-outer { grid-template-columns: 1fr; border-radius: 12px; }
+      .contact-sidebar { padding: 3rem 6% 3.5rem; gap: 1.5rem; align-items: center; text-align: center; }
+      .sidebar-photo { display: none; }
+      .contact-sidebar .section-label { justify-content: center; }
+      .contact-detail-row { justify-content: center; }
+      .contact-promise { margin-top: 0; padding-top: 1.5rem; text-align: center; }
+      .contact-form-side { padding: 3rem 5% 4rem; border: none !important; border-radius: 0 !important; }
+      .contact-form { grid-template-columns: 1fr; gap: 1rem; }
+      .contact-form .full { grid-column: 1; }
+      .contact-form .btn-submit { grid-column: 1; }
+
+      /* Footer mobile */
+      .footer-top { display: flex; flex-direction: column; gap: 0; align-items: center; text-align: center; }
+      .footer-brand { text-align: center; padding-bottom: 2rem; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .footer-tagline { margin-left: auto; margin-right: auto; max-width: 220px; }
+      .footer-nav-cols { display: flex; gap: 4rem; justify-content: center; width: 100%; padding: 2rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .footer-nav-cols > div { flex: 1; max-width: 130px; }
+      .footer-contact-cols { display: flex; flex-direction: row; gap: 0; justify-content: center; width: 100%; padding-top: 2rem; }
+      .footer-contact-cols .footer-contact-item { flex: 1; margin-bottom: 0; align-items: center; text-align: center; padding: 0 0.75rem; border-right: 1px solid rgba(255,255,255,0.1); }
+      .footer-contact-cols .footer-contact-item:last-child { border-right: none; }
+      .footer-bottom { flex-direction: column; align-items: center; }
+
+      .back-to-top { display: flex; }
+    }
+
+  
+    /* Footer links should match site styling (no default blue underline) */
+    /* Footer link colors (prevents default visited/active turning black) */
+    footer a:link,
+    footer a:visited,
+    footer a:active,
+    footer a:focus {
+      color: rgba(255,255,255,0.78);
+      -webkit-text-fill-color: rgba(255,255,255,0.78);
+      text-decoration: none;
+      outline: none;
+    }
+    footer a:hover {
+      color: var(--brown);
+      -webkit-text-fill-color: var(--brown);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="#home" class="nav-logo" aria-label="Flatiron Studio home">
+      <svg width="26" height="26" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="56" height="56" rx="10" fill="#2B4A3C"/>
+        <rect x="5" y="9" width="46" height="34" rx="4" stroke="#DFC3A0" stroke-width="1.8" fill="none"/>
+        <line x1="5" y1="18" x2="51" y2="18" stroke="#DFC3A0" stroke-width="1.3" opacity="0.45"/>
+        <circle cx="11" cy="13.5" r="2" fill="#C9A87C"/>
+        <circle cx="17" cy="13.5" r="2" fill="#DFC3A0" opacity="0.3"/>
+        <path d="M7 39 L13 30 L17 34 L22 23 L27 30 L31 26 L36 31 L41 27 L46 33 L49 39"
+              stroke="#C9A87C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="22" cy="23" r="2.5" fill="#C9A87C"/>
+      </svg>
+      Flatiron Studio
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#contact" class="nav-cta">Contact Now</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile drawer -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#about" class="menu-link">About</a>
+    <a href="#services" class="menu-link">Services</a>
+    <a href="#process" class="menu-link">Process</a>
+    <a href="#contact" class="menu-link">Contact Now</a>
+  </div>
+
+  <!-- HERO -->
+  <section id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">Beautiful websites<br>for <em>Boulder</em><br>businesses.</h1>
+      <div class="hero-buttons">
+        <a href="#contact" class="btn-primary">Contact Now</a>
+        <a href="#services" class="btn-ghost">See Services</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-grid fade-up">
+      <div class="about-text">
+        <p class="section-label">About the Studio</p>
+        <h2 class="section-title" style="margin-bottom:0.75rem">We're from <span>Boulder.</span></h2>
+        <p class="about-tagline">A small, independent studio helping local businesses grow their online presence — without the big-agency price tag or runaround.</p>
+        <div class="values-list">
+          <div class="value-item">
+            <h4>Local First</h4>
+            <p>We focus on Boulder and the surrounding area. We know the community and the customers you're trying to reach.</p>
+          </div>
+          <div class="value-item">
+            <h4>Built to Last</h4>
+            <p>We don't do cookie-cutter templates. Every site is built to reflect your specific business and serve your customers.</p>
+          </div>
+          <div class="value-item">
+            <h4>Personal & Direct</h4>
+            <p>You work with us directly, start to finish. No account managers, no outsourcing — just honest work.</p>
+          </div>
+        </div>
+      </div>
+      <div class="about-photo">
+        <img src="about-main.jpg" alt="Pearl Street, Boulder"/>
+      </div>
+    </div>
+  </section>
+
+    <!-- SERVICES -->
+  <section id="services">
+    <div class="services-top fade-up">
+      <div class="services-header">
+        <p class="section-label">Services & Pricing</p>
+        <h2 class="section-title">Straightforward <span>pricing.</span></h2>
+      </div>
+    </div>
+
+    <div class="pricing-grid">
+
+      <!-- STARTER -->
+      <div class="pricing-card">
+        <p class="card-tier">Starter</p>
+        <h3 class="card-name">Basic Site</h3>
+        <div class="card-price-row">
+          <span class="card-price">$500</span>
+        </div>
+        <p class="card-timeline">⏱ ~1 week turnaround</p>
+        <div class="card-divider"></div>
+        <ul class="card-features">
+          <li><span class="check">✓</span>Up to 4 pages</li>
+          <li><span class="check">✓</span>Web & mobile responsive</li>
+          <li><span class="check">✓</span>Contact form</li>
+          <li><span class="check">✓</span>Basic animations</li>
+          <li><span class="check">✓</span>Basic SEO setup</li>
+          <li><span class="check">✓</span>2 revision rounds</li>
+        </ul>
+        <div class="card-bottom">
+          <a href="#contact" class="card-cta">Get Started →</a>
+          <p class="card-note">Best for new businesses getting started.</p>
+          <p class="card-hosting">Hosting free via Netlify. Domain ~$15/yr. No fees to us.</p>
+        </div>
+      </div>
+
+      <!-- GROWTH (featured) -->
+      <div class="pricing-card featured">
+        <span class="featured-badge">Most Popular</span>
+        <p class="card-tier">Growth</p>
+        <h3 class="card-name">Growth Site</h3>
+        <div class="card-price-row">
+          <span class="card-price">$1,500</span>
+        </div>
+        <p class="card-timeline">⏱ ~2 week turnaround</p>
+        <div class="card-divider"></div>
+        <ul class="card-features">
+          <li><span class="check">✓</span>Up to 8 pages</li>
+          <li><span class="check">✓</span>Custom design & branding</li>
+          <li><span class="check">✓</span>Blog or news section</li>
+          <li><span class="check">✓</span>Full SEO optimization</li>
+          <li><span class="check">✓</span>Custom animations</li>
+          <li><span class="check">✓</span>Email capture integration</li>
+          <li><span class="check">✓</span>3 revision rounds</li>
+        </ul>
+        <div class="card-bottom">
+          <a href="#contact" class="card-cta">Get Started →</a>
+          <p class="card-note">Best for growing businesses ready for a stronger online presence.</p>
+          <p class="card-hosting">Hosting ~$19/mo. Domain ~$15/yr. No ongoing fees to us.</p>
+        </div>
+      </div>
+
+      <!-- BUSINESS -->
+      <div class="pricing-card">
+        <p class="card-tier">Full Service</p>
+        <h3 class="card-name">Business Site</h3>
+        <div class="card-price-row">
+          <span class="card-price">$5,000</span>
+        </div>
+        <p class="card-timeline">⏱ 3–4 week turnaround</p>
+        <div class="card-divider"></div>
+        <ul class="card-features">
+          <li><span class="check">✓</span>Unlimited pages</li>
+          <li><span class="check">✓</span>Custom design system</li>
+          <li><span class="check">✓</span>Online booking or e-commerce</li>
+          <li><span class="check">✓</span>Custom integrations</li>
+          <li><span class="check">✓</span>Advanced SEO & performance</li>
+          <li><span class="check">✓</span>Analytics dashboard</li>
+          <li><span class="check">✓</span>Priority support window</li>
+        </ul>
+        <div class="card-bottom">
+          <a href="#contact" class="card-cta">Get Started →</a>
+          <p class="card-note">Best for established businesses that need a full custom digital hub.</p>
+          <p class="card-hosting">E-commerce hosting ~$39/mo. Domain ~$15/yr. Support available.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+    <!-- PROCESS -->
+  <section id="process">
+    <div>
+      <p class="section-label">How It Works</p>
+      <h2 class="section-title" style="color:var(--white)">
+        From first message to launch<br>
+        <em style="font-style:italic;color:var(--sandstone)">in weeks, not months.</em>
+      </h2>
+    </div>
+
+    <div class="process-steps fade-up">
+      <div class="step">
+        <div class="step-number">01</div>
+        <h4>Quick Intro</h4>
+        <p>Send us your details and we'll reply within 1 business day to talk through your project.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">02</div>
+        <h4>Design & Build</h4>
+        <p>We get to work — clean design, fast loading, mobile-friendly from day one.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">03</div>
+        <h4>Review & Refine</h4>
+        <p>You give feedback, we revise. We keep going until it feels exactly right.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">04</div>
+        <h4>Launch & Hand Off</h4>
+        <p>Your site goes live and you own everything. We’re here if you need us after.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-outer">
+      <div class="contact-sidebar fade-up">
+        <div>
+          <p class="section-label">Get In Touch</p>
+          <h2 class="section-title">Let's build something <span style="color:var(--sandstone)">together.</span></h2>
+        </div>
+        <div class="contact-details">
+          <div class="contact-detail-row">
+            
+            <div class="contact-detail-text"><span>Location</span><p>Boulder, Colorado</p></div>
+          </div>
+          <div class="contact-detail-row">
+            
+            <div class="contact-detail-text"><span>Email</span><a href="mailto:hello@flatironstudio.co">hello@flatironstudio.co</a></div>
+          </div>
+          <div class="contact-detail-row">
+            
+            <div class="contact-detail-text"><span>Phone</span><a href="tel:+10000000000">(630) 785-0001</a></div>
+          </div>
+        </div>
+        <div class="contact-promise">
+          <p>We reply to every message within <strong>1 business day</strong>.</p>
+        </div>
+        <div class="sidebar-photo">
+          <img src="about-secondary.jpg" alt="Web design work"/>
+        </div>
+      </div>
+      <div class="contact-form-side fade-up-1">
+        <form id="contact-form" class="contact-form" action="https://formspree.io/f/xwvnnzgj" method="POST">
+          
+          <!-- FormSubmit config -->
+          <input type="hidden" name="_subject" value="New website inquiry — Flatiron Studio">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_captcha" value="false">
+          <!-- Honeypot (spam trap) -->
+          <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+<div class="form-group"><label for="firstName">First Name</label><input id="firstName" name="first_name" type="text" required placeholder="John" autocomplete="given-name"/></div>
+          <div class="form-group"><label for="lastName">Last Name</label><input id="lastName" name="last_name" type="text" required placeholder="Smith" autocomplete="family-name"/></div>
+          <div class="form-group"><label for="email">Email</label><input id="email" name="email" type="email" required placeholder="john@yourbusiness.com" autocomplete="email"/></div>
+          <div class="form-group"><label for="phone">Phone</label><input id="phone" name="phone" type="tel" placeholder="(123) 456-7890" autocomplete="tel"/></div>
+          <div class="form-group">
+            <label for="industry">Business Type</label>
+            <select id="industry" name="business_type">
+              <option value="">Your industry...</option>
+              <option>Restaurant / Café</option><option>Contractor / Trades</option>
+              <option>Salon / Spa</option><option>Yoga / Fitness</option>
+              <option>Retail Shop</option><option>Consultant / Professional</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="package">Package Interest</label>
+            <select id="package" name="package_interest">
+              <option value="">Not sure yet...</option>
+              <option>Basic Site — $500</option><option>Growth Site — $1,500</option>
+              <option>Full Business Site — $5,000</option>
+            </select>
+          </div>
+          <div class="form-group full"><label for="message">Tell us about your business</label><textarea id="message" name="message" placeholder="What do you do, what do you need, any questions?" required></textarea></div>
+          <button type="submit" class="btn-submit">Send Message →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">Flatiron Studio</div>
+        <div class="footer-tagline">Local web design for Boulder businesses.</div>
+      </div>
+
+      <div class="footer-nav-cols">
+        <div>
+          <div class="footer-col-title">Pages</div>
+          <ul class="footer-col-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#process">Process</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Services</div>
+          <ul class="footer-col-links">
+            <li><a href="#services">Website Design</a></li>
+            <li><a href="#services">SEO Optimization</a></li>
+            <li><a href="#services">Custom Animations</a></li>
+            <li><a href="#services">E-commerce</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-contact-cols">
+        <div class="footer-contact-item">
+          <span>Email</span>
+          <p><a href="mailto:hello@flatironstudio.co">hello@flatironstudio.co</a></p>
+        </div>
+        <div class="footer-contact-item">
+          <span>Phone</span>
+          <p><a href="tel:+16307850001">(630) 785-0001</a></p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copy">© <span id="year"></span> Flatiron Studio. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- Back to Top (mobile) -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M12 5l-7 7 1.4 1.4L11 8.8V19h2V8.8l4.6 4.6L19 12l-7-7z" fill="#FDFAF5"/>
+    </svg>
+  </button><script>
+    // ── Hamburger menu ──
+    (function() {
+      var btn = document.getElementById('hamburger');
+      var menu = document.getElementById('mobileMenu');
+      if (!btn || !menu) return;
+      function close() { btn.classList.remove('open'); menu.classList.remove('open'); }
+      btn.addEventListener('click', function() {
+        btn.classList.toggle('open');
+        menu.classList.toggle('open');
+      });
+      menu.querySelectorAll('a').forEach(function(a) {
+        a.addEventListener('click', close);
+      });
+    })();
+
+    // ── Scroll-triggered fade-up animations ──
+    (function() {
+      var els = document.querySelectorAll('.fade-up, .fade-up-1, .fade-up-2, .fade-up-3');
+      if (!els.length) return;
+      document.body.classList.add('js-ready');
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('in-view');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -5% 0px' });
+      els.forEach(function(el) { io.observe(el); });
+    })();
+
+    // ── Back to top — mobile only, hidden while in hero ──
+    (function() {
+      var btn = document.getElementById('backToTop');
+      if (!btn) return;
+      var hero = document.getElementById('home');
+      function update() {
+        var heroBottom = hero ? hero.getBoundingClientRect().bottom : 0;
+        var pastHero = heroBottom < 0;
+        btn.classList.toggle('visible', pastHero);
+      }
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+      btn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    })();
+
+    // ── Year ──
+    (function() {
+      var el = document.getElementById('year');
+      if (el) el.textContent = new Date().getFullYear();
+    })();
+  </script>
+
+  <!-- Formspree AJAX submit (no redirect) -->
+  <script>
+    (function() {
+      const form = document.getElementById("contact-form");
+      if (!form) return;
+
+      form.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const btn = form.querySelector(".btn-submit");
+        const originalText = btn.textContent;
+        btn.textContent = "Sending...";
+        btn.disabled = true;
+
+        const data = new FormData(form);
+
+        try {
+          const response = await fetch(form.action, {
+            method: form.method,
+            body: data,
+            headers: { 'Accept': 'application/json' }
+          });
+
+          if (response.ok) {
+            form.reset();
+            btn.textContent = "Message Sent ✓";
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.disabled = false;
+            }, 2500);
+          } else {
+            btn.textContent = "Something went wrong";
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.disabled = false;
+            }, 2500);
+          }
+        } catch (error) {
+          btn.textContent = "Error sending";
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+          }, 2500);
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>
