@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Flatiron Studio — Local Web Design Studio</title>
     <!-- Favicon -->
-  <link rel="icon" href="favicon.ico" sizes="any"><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
+  <link rel="icon" href="favicon.ico" type="image/x-icon"><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
       --sandstone: #C9A87C;
@@ -427,6 +429,103 @@
     }
 
   
+    /* OUR WORK */
+    #work { padding: 110px 5%; background: var(--sandstone-pale); }
+    .work-header { max-width: 560px; margin-bottom: 3rem; }
+
+    .work-grid {
+      display: grid;
+      grid-template-columns: 1.65fr 1fr;
+      gap: 1.25rem;
+    }
+    .work-col-left { display: flex; }
+    .work-col-right { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .work-card {
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      background: #fff;
+      width: 100%;
+    }
+    .work-col-left .work-card { height: 440px; }
+    .work-col-right .work-card { height: 208px; }
+    .work-col-right .work-card:last-child { margin-top: auto; }
+
+    .work-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top left;
+      display: block;
+      transition: transform 0.45s ease, opacity 0.35s ease;
+    }
+    .work-card:hover img { transform: scale(1.03); opacity: 0.55; }
+    .work-card-info {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.5rem;
+      background: linear-gradient(to top, rgba(24,23,20,0.85) 0%, transparent 55%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .work-card:hover .work-card-info { opacity: 1; }
+    .work-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--white); margin-bottom: 0.2rem;
+    }
+    .work-card-type {
+      font-size: 0.78rem; color: var(--sandstone-light);
+      text-transform: uppercase; letter-spacing: 1.5px;
+    }
+    .work-card-link {
+      display: inline-block; margin-top: 0.6rem;
+      font-size: 0.8rem; font-weight: 500;
+      color: var(--sandstone);
+      text-decoration: none;
+      border-bottom: 1px solid var(--sandstone);
+      padding-bottom: 1px;
+      width: fit-content;
+    }
+    .work-badge {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--evergreen); color: var(--white);
+      font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 0.3rem 0.75rem; border-radius: 20px;
+      z-index: 2;
+    }
+
+    /* Mobile: horizontal swipe carousel */
+    @media (max-width: 768px) {
+      .work-header { text-align: center; }
+      .work-header .section-label { justify-content: center; }
+      .work-grid {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .work-grid::-webkit-scrollbar { display: none; }
+      .work-col-left, .work-col-right { display: contents; }
+      .work-card {
+        flex: 0 0 80vw;
+        height: auto !important;
+        scroll-snap-align: start;
+      }
+      .work-card img {
+        height: auto !important;
+        object-fit: unset;
+      }
+    }
+
     /* Footer links should match site styling (no default blue underline) */
     /* Footer link colors (prevents default visited/active turning black) */
     footer a:link,
@@ -466,6 +565,7 @@
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
       <li><a href="#services">Services</a></li>
+      <li><a href="#work">Work</a></li>
       <li><a href="#process">Process</a></li>
       <li><a href="#contact" class="nav-cta">Contact Now</a></li>
     </ul>
@@ -478,6 +578,7 @@
   <div class="mobile-menu" id="mobileMenu">
     <a href="#about" class="menu-link">About</a>
     <a href="#services" class="menu-link">Services</a>
+    <a href="#work" class="menu-link">Work</a>
     <a href="#process" class="menu-link">Process</a>
     <a href="#contact" class="menu-link">Contact Now</a>
   </div>
@@ -611,6 +712,50 @@
 
     </div>
 
+  </section>
+
+  <!-- OUR WORK -->
+  <section id="work">
+    <div class="work-header fade-up">
+      <p class="section-label">Our Work</p>
+      <h2 class="section-title">Sites we've <span>built.</span></h2>
+      <p class="section-sub">Every site is custom-built for the business — no templates, no shortcuts. Here's a look at what we've made for local Boulder clients.</p>
+    </div>
+    <div class="work-grid">
+
+      <!-- Left col: Meow Meow -->
+      <div class="work-col-left">
+        <a href="https://meowmeowboulder.netlify.app/" target="_blank" rel="noopener" class="work-card" style="text-decoration:none;">
+          <img src="screenshot-meowmeow.png" alt="Meow Meow Boulder — Gifts, Clothing & Art Prints"/>
+          <div class="work-card-info">
+            <p class="work-card-name">Meow Meow Boulder</p>
+            <p class="work-card-type">Gifts & Clothing Shop · The Hill</p>
+            <span class="work-card-link">View Live Site →</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Right col desktop: BVT on top, Cuts Deep below -->
+      <div class="work-col-right">
+        <div class="work-card">
+          <img src="screenshot-bvt.png" alt="Boulder Valley Tree — Expert Tree Care"/>
+          <span class="work-badge">Coming Soon</span>
+          <div class="work-card-info">
+            <p class="work-card-name">Boulder Valley Tree</p>
+            <p class="work-card-type">Tree Service · Boulder, CO</p>
+          </div>
+        </div>
+        <div class="work-card">
+          <img src="screenshot-cutsdeep.png" alt="Cuts Deep Barbershop — Boulder, CO"/>
+          <span class="work-badge">Coming Soon</span>
+          <div class="work-card-info">
+            <p class="work-card-name">Cuts Deep</p>
+            <p class="work-card-type">Barbershop · Sola Salons</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </section>
 
     <!-- PROCESS -->
@@ -764,7 +909,7 @@
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M12 5l-7 7 1.4 1.4L11 8.8V19h2V8.8l4.6 4.6L19 12l-7-7z" fill="#FDFAF5"/>
     </svg>
-  </button><script>
+  </button><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // ── Hamburger menu ──
     (function() {
       var btn = document.getElementById('hamburger');
@@ -852,21 +997,3 @@
             }, 2500);
           } else {
             btn.textContent = "Something went wrong";
-            setTimeout(() => {
-              btn.textContent = originalText;
-              btn.disabled = false;
-            }, 2500);
-          }
-        } catch (error) {
-          btn.textContent = "Error sending";
-          setTimeout(() => {
-            btn.textContent = originalText;
-            btn.disabled = false;
-          }, 2500);
-        }
-      });
-    })();
-  </script>
-
-</body>
-</html>
